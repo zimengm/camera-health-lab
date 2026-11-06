@@ -1,0 +1,37 @@
+{
+  "source": "data/part3/batch/20cm/transmitter.json",
+  "reuse_condition": "Observer position, screen brightness and room lighting remain unchanged; only the receiving phone moves.",
+  "observer_distance_cm": null,
+  "observations": [
+    {
+      "delta": 0.5,
+      "symbol_seconds": 0.5,
+      "observation": "clear"
+    },
+    {
+      "delta": 0.1,
+      "symbol_seconds": 0.5,
+      "observation": "clear"
+    },
+    {
+      "delta": 0.5,
+      "symbol_seconds": 0.4,
+      "observation": "clear"
+    },
+    {
+      "delta": 0.1,
+      "symbol_seconds": 0.4,
+      "observation": "clear"
+    },
+    {
+      "delta": 0.5,
+      "symbol_seconds": 0.25,
+      "observation": "clear"
+    },
+    {
+      "delta": 0.1,
+      "symbol_seconds": 0.25,
+      "observation": "slight"
+    }
+  ]
+}

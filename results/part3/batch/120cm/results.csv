@@ -1,0 +1,7 @@
+id,distance_cm,delta,symbol,message,flicker_observation,flicker_observation_source,sender_complete,status,payload_ber,frame_ber,payload_goodput_bps,frame_correct_bit_rate_bps,received_text
+T0019,120,0.5,0.5,T0019,clear,data/part3/batch/20cm/transmitter.json (shared fixed observer conditions),True,decoded,0.0,0.015625,1.25,1.96875,T0019
+T0020,120,0.1,0.5,T0020,clear,data/part3/batch/20cm/transmitter.json (shared fixed observer conditions),True,decoded,0.0,0.015625,1.25,1.96875,T0020
+T0021,120,0.5,0.4,T0021,clear,data/part3/batch/20cm/transmitter.json (shared fixed observer conditions),True,decoded,0.0,0.0,1.5625,2.5,T0021
+T0022,120,0.1,0.4,T0022,clear,data/part3/batch/20cm/transmitter.json (shared fixed observer conditions),True,decoded,0.0,0.0,1.5625,2.5,T0022
+T0023,120,0.5,0.25,T0023,clear,data/part3/batch/20cm/transmitter.json (shared fixed observer conditions),True,decoded,0.0,0.015625,2.5,3.9375,T0023
+T0024,120,0.1,0.25,T0024,slight,data/part3/batch/20cm/transmitter.json (shared fixed observer conditions),True,decoded,0.0,0.0,2.5,4.0,T0024

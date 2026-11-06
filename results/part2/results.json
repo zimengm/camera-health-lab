@@ -1,0 +1,39 @@
+{
+  "model": "MobileNetV2 ImageNet",
+  "dataset": "PneumoniaMNIST-64",
+  "seed": 42,
+  "input_size": 96,
+  "selected_stage": "finetuned",
+  "head_best_val_loss": 0.20237977802753448,
+  "finetuned_best_val_loss": 0.13180573284626007,
+  "validation": {
+    "accuracy": 0.9503816962242126,
+    "auc": 0.9889841675758362,
+    "loss": 0.13180573284626007
+  },
+  "test": {
+    "accuracy": 0.870192289352417,
+    "auc": 0.9669843912124634,
+    "loss": 0.29389992356300354
+  },
+  "test_roc_auc": 0.9681349989042297,
+  "test_balanced_accuracy": 0.838034188034188,
+  "test_sensitivity": 0.9666666666666667,
+  "test_specificity": 0.7094017094017094,
+  "confusion_matrix": [
+    [
+      166,
+      68
+    ],
+    [
+      13,
+      377
+    ]
+  ],
+  "epochs_completed": {
+    "head": 3,
+    "finetuned": 4
+  },
+  "tensorflow_version": "2.16.2",
+  "python_version": "3.9.6"
+}

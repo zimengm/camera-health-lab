@@ -1,0 +1,15 @@
+{
+  "dataset": "PneumoniaMNIST-64",
+  "url": "https://zenodo.org/records/10519652/files/pneumoniamnist_64.npz?download=1",
+  "md5": "8f4eceb4ccffa70c672198ea285246c6",
+  "expected_md5": "8f4eceb4ccffa70c672198ea285246c6",
+  "split_sizes": {
+    "train": 4708,
+    "val": 524,
+    "test": 624
+  },
+  "label_mapping": {
+    "0": "normal",
+    "1": "pneumonia"
+  }
+}

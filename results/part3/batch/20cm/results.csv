@@ -1,0 +1,7 @@
+id,distance_cm,delta,symbol,message,flicker_observation,flicker_observation_source,sender_complete,status,payload_ber,frame_ber,payload_goodput_bps,frame_correct_bit_rate_bps,received_text
+T0001,20,0.5,0.5,T0001,clear,this_session,True,decoded,0.0,0.015625,1.25,1.96875,T0001
+T0002,20,0.1,0.5,T0002,clear,this_session,True,decoded,0.0,0.0,1.25,2.0,T0002
+T0003,20,0.5,0.4,T0003,clear,this_session,True,decoded,0.0,0.0,1.5625,2.5,T0003
+T0004,20,0.1,0.4,T0004,clear,this_session,True,decoded,0.0,0.0,1.5625,2.5,T0004
+T0005,20,0.5,0.25,T0005,clear,this_session,True,decoded,0.0,0.0,2.5,4.0,T0005
+T0006,20,0.1,0.25,T0006,slight,this_session,True,decoded,0.025000000000000022,0.015625,2.4375,3.9375,T�006

@@ -1,0 +1,14 @@
+{
+  "conditions_recorded": 24,
+  "conditions_measured": 24,
+  "payload_bits_per_trial": 40,
+  "frame_bits_per_trial": 64,
+  "payload_errors": 1,
+  "frame_errors": 7,
+  "payload_bits": 960,
+  "frame_bits": 1536,
+  "bit_perfect_payload_trials": 23,
+  "note": "One 40-bit payload per condition. Shared fixed-observer flicker observations are not four independent observations. Carrier frequencies remain 4/10 Hz across symbol rates; no precise visual-threshold claim.",
+  "aggregate_payload_ber": 0.0010416666666666667,
+  "aggregate_frame_ber": 0.004557291666666667
+}

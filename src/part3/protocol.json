@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "f0_hz": 4,
+  "f1_hz": 10,
+  "preamble": "110100111010000101101100",
+  "default_message": "HELLO",
+  "lead_seconds": 3,
+  "tail_seconds": 3,
+  "symbol_seconds": [0.5, 0.4, 0.25],
+  "alpha_differences": [0.1, 0.5],
+  "distances_cm": [20, 40, 80, 120]
+}
