@@ -12,13 +12,13 @@
 <div class="view"><video id="video" muted playsinline></video><div class="reticle"></div><div class="hint" id="viewHint">让绿色框内全部是电脑图片</div></div>
 <div class="result" aria-live="polite"><div class="eyebrow">收到的文字</div><div class="message" id="message">—</div><div class="state" id="status">尚未打开摄像头。先保持默认设置。</div><progress id="progress" value="0" max="40"></progress></div>
 <div class="buttons"><button id="start">打开后置摄像头</button><button class="secondary" id="stop" disabled>停止</button></div>
-<p class="small" id="sampling">v3 · 画面只在此设备处理，不上传，也不录音。</p>
+<p class="small" id="sampling">v4 · 画面只在此设备处理，不上传，也不录音。</p>
 <button class="secondary export" id="save" disabled>保存本次接收数据</button>
 <details><summary>实验设置与视频回放验证</summary>
-<div class="settings"><label>接收速度<select id="symbol"><option value="auto">自动（批量实验）</option><option value="0.5">0.5 秒（单次）</option><option value="0.4">0.4 秒</option><option value="0.25">0.25 秒</option></select></label><label>消息字符数<input id="bytes" type="number" min="1" max="16" value="5"></label></div>
-<p class="small">只需要知道消息长度，不需要预先输入消息内容。默认可接收 HELLO、WORLD 等 5 个字符的消息。没有校验码，出现乱码或低置信度时需重试；误码率须与实际发送内容比较后计算。</p>
+<div class="settings"><label>实验模式<select id="profile"><option value="legacy">原实验（4/10 Hz）</option><option value="rate-coupled">可见性补测</option></select></label><label>接收速度<select id="symbol"><option value="auto">自动（批量实验）</option><option value="0.5">0.5 秒（单次）</option><option value="0.4">0.4 秒</option><option value="0.25">0.25 秒</option></select></label><label>消息字符数<input id="bytes" type="number" min="1" max="16" value="5"></label></div>
+<p class="small">补测模式请保持速度为「自动」；对应电脑 refine.html，采样需超过 50 次/秒。只需要知道消息长度，不需要预先输入消息内容。默认可接收 HELLO、WORLD 等 5 个字符的消息。没有校验码，出现乱码或低置信度时需重试；误码率须与实际发送内容比较后计算。</p>
 <label>在本机回放视频验证（不会上传）<input id="file" type="file" accept="video/*"></label>
 <p class="small">回放用于验证算法；手机实时接收请使用上方摄像头按钮。</p>
 </details><canvas id="canvas" width="64" height="64"></canvas>
-</main><script src="app.js?v=3"></script>
+</main><script src="app.js?v=4"></script>
 </html>

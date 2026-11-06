@@ -3,11 +3,11 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const {LiveDecoder,PREAMBLE}=require('./dist/decoder.js');
-async function test({fallback=false,throwFrame=false}){
+async function test({fallback=false,throwFrame=false,profile='legacy',symbol=.5}){
  let now=0,nextFrame=null,nextRAF=null,pixel=180,frameIndex=0,download=null;
  const elements={};
  function element(id){return elements[id]??=(
-  {value:id==='bytes'?'5':id==='symbol'?'0.5':'',textContent:'',disabled:false,
+  {value:id==='bytes'?'5':id==='symbol'?String(symbol):id==='profile'?profile:'',textContent:'',disabled:false,
    classList:{toggle(){}},style:{},click(){},removeAttribute(){}});}
  const video=element('video');
  Object.assign(video,{videoWidth:1280,videoHeight:720,currentTime:0,srcObject:null,
@@ -31,10 +31,10 @@ async function test({fallback=false,throwFrame=false}){
   setTimeout:()=>1,setInterval:()=>1,clearInterval(){},requestAnimationFrame(cb){nextRAF=cb;return 2;},cancelAnimationFrame(){nextRAF=null;},Uint8ClampedArray,console};
  vm.createContext(sandbox);vm.runInContext(fs.readFileSync(__dirname+'/dist/app.js','utf8'),sandbox);
  await element('start').onclick();
- const word='WORLD',T=.5,start=4.173;
+ const word='WORLD',T=symbol,start=4.173,frequencies=profile==='rate-coupled'?[2/T,3/T]:[4,10];
  const bits=[...PREAMBLE,...[...Buffer.from(word)].flatMap(v=>v.toString(2).padStart(8,'0').split('').map(Number))];
  for(let t=0;t<40;t+=1/60){
-  frameIndex++;now=t*1000;const i=Math.floor((t-start)/T);pixel=i<0||i>=bits.length?180:160+20*Math.cos(2*Math.PI*(bits[i]?10:4)*(t-start-i*T));
+  frameIndex++;now=t*1000;const i=Math.floor((t-start)/T);pixel=i<0||i>=bits.length?180:160+20*Math.cos(2*Math.PI*frequencies[bits[i]]*(t-start-i*T));
   if(fallback){const cb=nextRAF;nextRAF=null;cb?.(now);}
   else{const cb=nextFrame;nextFrame=null;cb?.(now,{mediaTime:0});}
  }
@@ -47,8 +47,8 @@ async function test({fallback=false,throwFrame=false}){
  return {fallback,throwFrame,samples:result.samples.length,decoded:result.packets[0].text,diagnostics:result.capture_diagnostics};
 }
 (async()=>{
- const cases=[await test({}),await test({throwFrame:true}),await test({fallback:true})];
+ const cases=[await test({}),await test({throwFrame:true}),await test({fallback:true}),await test({profile:'rate-coupled',symbol:.125})];
  fs.mkdirSync(__dirname+'/../../results/software_checks',{recursive:true});
  fs.writeFileSync(__dirname+'/../../results/software_checks/capture_v2_verification.json',JSON.stringify({scope:'Mock camera callbacks exercise actual app; live iPhone remains unverified.',cases},null,2));
- console.log('PASS: repeated zero mediaTime, transient canvas error, and rVFC-stall fallback all capture >2300 samples and decode WORLD.');
+ console.log('PASS: zero mediaTime, canvas error, fallback, and 8 bit/s refinement capture/decode through the actual app.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

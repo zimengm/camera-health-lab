@@ -1,9 +1,9 @@
-importScripts('decoder.js');
+importScripts('decoder.js?v=4');
 let decoders=[];
 onmessage=({data})=>{
  try{
   if(data.type==='reset'){
-   const symbols=data.config.symbol==='auto'?[.5,.4,.25]:[data.config.symbol];
+   const symbols=data.config.symbol==='auto'?(data.config.profile==='rate-coupled'?BFSK.REFINEMENT_SYMBOLS:[.5,.4,.25]):[data.config.symbol];
    decoders=symbols.map(symbol=>new BFSK.LiveDecoder({...data.config,symbol}));postMessage({type:'ready'});
   }
   if(data.type==='samples'){

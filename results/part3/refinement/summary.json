@@ -1,0 +1,151 @@
+{
+  "profile": "rate-coupled",
+  "groups": [
+    {
+      "distance_cm": 20,
+      "delta": 0.1,
+      "raw_bit_rate_bps": 2,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 0,
+      "payload_ber": 0.0,
+      "payload_goodput_bps": 1.25,
+      "observations": {
+        "none": 0,
+        "slight": 1,
+        "clear": 0,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    },
+    {
+      "distance_cm": 20,
+      "delta": 0.1,
+      "raw_bit_rate_bps": 4,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 0,
+      "payload_ber": 0.0,
+      "payload_goodput_bps": 2.5,
+      "observations": {
+        "none": 0,
+        "slight": 1,
+        "clear": 0,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    },
+    {
+      "distance_cm": 20,
+      "delta": 0.1,
+      "raw_bit_rate_bps": 6,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 40,
+      "payload_ber": 1.0,
+      "payload_goodput_bps": 0.0,
+      "observations": {
+        "none": 0,
+        "slight": 1,
+        "clear": 0,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    },
+    {
+      "distance_cm": 20,
+      "delta": 0.1,
+      "raw_bit_rate_bps": 8,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 0,
+      "payload_ber": 0.0,
+      "payload_goodput_bps": 5.0,
+      "observations": {
+        "none": 0,
+        "slight": 1,
+        "clear": 0,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    },
+    {
+      "distance_cm": 20,
+      "delta": 0.5,
+      "raw_bit_rate_bps": 2,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 0,
+      "payload_ber": 0.0,
+      "payload_goodput_bps": 1.25,
+      "observations": {
+        "none": 0,
+        "slight": 0,
+        "clear": 1,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    },
+    {
+      "distance_cm": 20,
+      "delta": 0.5,
+      "raw_bit_rate_bps": 4,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 0,
+      "payload_ber": 0.0,
+      "payload_goodput_bps": 2.5,
+      "observations": {
+        "none": 0,
+        "slight": 0,
+        "clear": 1,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    },
+    {
+      "distance_cm": 20,
+      "delta": 0.5,
+      "raw_bit_rate_bps": 6,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 0,
+      "payload_ber": 0.0,
+      "payload_goodput_bps": 3.75,
+      "observations": {
+        "none": 0,
+        "slight": 0,
+        "clear": 1,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    },
+    {
+      "distance_cm": 20,
+      "delta": 0.5,
+      "raw_bit_rate_bps": 8,
+      "trials": 1,
+      "measured_trials": 1,
+      "payload_bits": 40,
+      "payload_errors": 0,
+      "payload_ber": 0.0,
+      "payload_goodput_bps": 5.0,
+      "observations": {
+        "none": 0,
+        "slight": 0,
+        "clear": 1,
+        "unobserved": 0
+      },
+      "missing_observations": 0
+    }
+  ],
+  "scope": "Physical supplemental measurements only. Never combine with synthetic checks or fixed 4/10 Hz legacy conditions.",
+  "interpretation": "Display observations at tested rates; do not infer an exact or universal perceptual threshold. Missing observations and insufficient timing are not zero error."
+}

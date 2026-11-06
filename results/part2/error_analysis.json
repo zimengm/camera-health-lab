@@ -1,0 +1,122 @@
+{
+  "scope": "Post-hoc descriptive analysis of the unchanged selected model at threshold 0.5.",
+  "metrics": {
+    "accuracy": {
+      "estimate": 0.8701923076923077,
+      "ci95_wilson": [
+        0.8415404700915927,
+        0.894314089223107
+      ],
+      "correct": 543,
+      "total": 624
+    },
+    "pneumonia_sensitivity": {
+      "estimate": 0.9666666666666667,
+      "ci95_wilson": [
+        0.9438116466442524,
+        0.9804181210646871
+      ],
+      "correct": 377,
+      "total": 390
+    },
+    "normal_specificity": {
+      "estimate": 0.7094017094017094,
+      "ci95_wilson": [
+        0.6482177492789027,
+        0.763821432140183
+      ],
+      "correct": 166,
+      "total": 234
+    },
+    "pneumonia_precision": {
+      "estimate": 0.8471910112359551,
+      "ci95_wilson": [
+        0.8108007781904881,
+        0.8776382996341857
+      ],
+      "correct": 377,
+      "total": 445
+    },
+    "normal_recall": {
+      "estimate": 0.7094017094017094,
+      "ci95_wilson": [
+        0.6482177492789027,
+        0.763821432140183
+      ],
+      "correct": 166,
+      "total": 234
+    },
+    "roc_auc": {
+      "estimate": 0.9681349989042297,
+      "ci95_stratified_bootstrap": [
+        0.9559557856673242,
+        0.9791932390970851
+      ],
+      "resamples": 2000,
+      "seed": 2026
+    }
+  },
+  "confusion_matrix": [
+    [
+      166,
+      68
+    ],
+    [
+      13,
+      377
+    ]
+  ],
+  "majority_class_test_accuracy": 0.625,
+  "interval_limitation": "Image-level intervals assume independent test images. Patient grouping and external validity are not established; AUC bootstrap conditions on class counts.",
+  "error_example_selection": "Four most confidently wrong examples per error type; test split indices are zero based.",
+  "examples": [
+    {
+      "test_index": 103,
+      "true_label": 0,
+      "prediction": 1,
+      "pneumonia_probability": 0.9965904951095581
+    },
+    {
+      "test_index": 1,
+      "true_label": 0,
+      "prediction": 1,
+      "pneumonia_probability": 0.9946997761726379
+    },
+    {
+      "test_index": 67,
+      "true_label": 0,
+      "prediction": 1,
+      "pneumonia_probability": 0.9933077096939087
+    },
+    {
+      "test_index": 195,
+      "true_label": 0,
+      "prediction": 1,
+      "pneumonia_probability": 0.9884545207023621
+    },
+    {
+      "test_index": 436,
+      "true_label": 1,
+      "prediction": 0,
+      "pneumonia_probability": 0.009898344986140728
+    },
+    {
+      "test_index": 88,
+      "true_label": 1,
+      "prediction": 0,
+      "pneumonia_probability": 0.04844845458865166
+    },
+    {
+      "test_index": 320,
+      "true_label": 1,
+      "prediction": 0,
+      "pneumonia_probability": 0.13528460264205933
+    },
+    {
+      "test_index": 180,
+      "true_label": 1,
+      "prediction": 0,
+      "pneumonia_probability": 0.14444340765476227
+    }
+  ]
+}

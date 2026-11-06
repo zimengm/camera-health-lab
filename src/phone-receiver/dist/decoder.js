@@ -2,6 +2,7 @@
 (function(root){
  'use strict';
  const PREAMBLE='110100111010000101101100'.split('').map(Number);
+ const REFINEMENT_SYMBOLS=[.5,.25,1/6,.125];
  function lowerBound(a,x){let l=0,r=a.length;while(l<r){const m=(l+r)>>1;if(a[m]<x)l=m+1;else r=m;}return l;}
  function solve(A,b){
   const m=A.map((r,i)=>[...r,b[i]]),n=b.length;
@@ -14,13 +15,14 @@
   }
   return m.map(r=>r[n]);
  }
- function classify(t,y,start,T){
+ function classify(t,y,start,T,frequencies=[4,10]){
   const l=lowerBound(t,start),r=lowerBound(t,start+T),n=r-l;
   if(n<5||t[0]>start+.04||t.at(-1)<start+T-.045)return {bit:-1,confidence:0};
+  if((n-1)/(t[r-1]-t[l])<=2*Math.max(...frequencies))return {bit:-1,confidence:0};
   let mean=0;for(let i=l;i<r;i++)mean+=y[i];mean/=n;
   let variance=0,maxGap=0;for(let i=l;i<r;i++){variance+=(y[i]-mean)**2;if(i>l)maxGap=Math.max(maxGap,t[i]-t[i-1]);}
   if(variance/n<.01||maxGap>Math.min(.12,T*.4))return {bit:-1,confidence:0};
-  const rss=[4,10].map(f=>{
+  const rss=frequencies.map(f=>{
    const A=Array.from({length:4},()=>[0,0,0,0]),b=[0,0,0,0];
    for(let i=l;i<r;i++){
     const x=(t[i]-start)/T,phase=2*Math.PI*f*(t[i]-start),row=[1,x,Math.sin(phase),Math.cos(phase)],v=y[i]-mean;
@@ -37,8 +39,10 @@
   let text='';for(let i=0;i+8<=bits.length;i+=8){let v=0,bad=false;for(const b of bits.slice(i,i+8)){bad||=b<0;v=(v<<1)|Math.max(0,b);}text+=bad||v<32||v>126?'�':String.fromCharCode(v);}return text;
  }
  class LiveDecoder{
-  constructor({symbol=.5,bytes=5}={}){
-   if(![.5,.4,.25].includes(symbol)||!Number.isInteger(bytes)||bytes<1||bytes>16)throw Error('Invalid symbol time or message length');
+  constructor({symbol=.5,bytes=5,profile='legacy'}={}){
+   const allowed=profile==='rate-coupled'?REFINEMENT_SYMBOLS:profile==='legacy'?[.5,.4,.25]:[];
+   if(!allowed.includes(symbol)||!Number.isInteger(bytes)||bytes<1||bytes>16)throw Error('Invalid profile, symbol time or message length');
+   this.profile=profile;this.frequencies=profile==='rate-coupled'?[2/symbol,3/symbol]:[4,10];
    this.T=symbol;this.bytes=bytes;this.t=[];this.y=[];this.scan=0;this.lock=null;this.bits=[];this.conf=[];this.packets=[];
   }
   push(t,y){if(Number.isFinite(t)&&Number.isFinite(y)&&(!this.t.length||t>this.t.at(-1))){if(!this.t.length)this.scan=t;this.t.push(t);this.y.push(y);}}
@@ -52,7 +56,7 @@
      for(let start=this.scan;start<=last;start+=1/60){
       let matches=0,confidence=0;
       for(let i=0;i<PREAMBLE.length;i++){
-       const c=classify(this.t,this.y,start+i*T,T),correct=c.bit===PREAMBLE[i];
+       const c=classify(this.t,this.y,start+i*T,T,this.frequencies),correct=c.bit===PREAMBLE[i];
        if(correct)matches++;confidence+=(correct?1:-1)*c.confidence;
       }
       if(!best||matches>best.matches||(matches===best.matches&&confidence>best.score))best={start,matches,score:confidence};
@@ -67,11 +71,11 @@
    if(this.lock){
     const start=this.lock.start+PREAMBLE.length*T;
     while(this.bits.length<this.bytes*8&&now>=start+(this.bits.length+1)*T+.025){
-     const c=classify(this.t,this.y,start+this.bits.length*T,T);this.bits.push(c.bit);this.conf.push(c.confidence);
+     const c=classify(this.t,this.y,start+this.bits.length*T,T,this.frequencies);this.bits.push(c.bit);this.conf.push(c.confidence);
      events.push({type:'progress',bits:this.bits.length,total:this.bytes*8,text:textOf(this.bits)});
     }
     if(this.bits.length===this.bytes*8){
-     const packet={type:'packet',text:textOf(this.bits),bits:[...this.bits],
+     const packet={type:'packet',text:textOf(this.bits),bits:[...this.bits],profile:this.profile,f0_hz:this.frequencies[0],f1_hz:this.frequencies[1],
       symbol_seconds:T,payload_bytes:this.bytes,preamble_matches:this.lock.matches,
       preamble_start_seconds:this.lock.start,completed_at_seconds:now,
       confidence:this.conf.reduce((a,v)=>a+v,0)/this.conf.length,
@@ -87,6 +91,6 @@
    return events;
   }
  }
- const api={PREAMBLE,classify,textOf,LiveDecoder};root.BFSK=api;
+ const api={PREAMBLE,REFINEMENT_SYMBOLS,classify,textOf,LiveDecoder};root.BFSK=api;
  if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

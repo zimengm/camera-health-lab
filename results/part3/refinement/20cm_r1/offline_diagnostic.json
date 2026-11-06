@@ -1,0 +1,10 @@
+{
+  "scope": "POST-HOC OFFLINE DIAGNOSTIC. Does not replace the recorded live missing-packet result.",
+  "trial_id": "V0004",
+  "search": "Preamble only, within 0.3 s of an offset established by other live packets; fine 1/600 s alignment grid.",
+  "best_preamble_matches": 22,
+  "mean_signed_preamble_confidence": 0.5690029079265393,
+  "offline_payload": "V0004",
+  "live_required_matches": 23,
+  "live_start_grid_seconds": 0.016666666666666666
+}

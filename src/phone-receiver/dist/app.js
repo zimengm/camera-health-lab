@@ -1,12 +1,12 @@
 'use strict';
 const $=id=>document.getElementById(id),video=$('video'),canvas=$('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
-const APP_VERSION='2026-11-05-batch-v3';
+const APP_VERSION='2026-11-05-refinement-v4';
 let worker=null,stream=null,active=false,frameHandle=null,rafHandle=null,healthTimer=null,buffer=[],samples=[],packets=[],lastMedia=-1,lastFlush=0,source='',cameraSettings=null,objectURL=null,wake=null,generation=0;
 let clockOrigin=null,lastCallbackAt=0,lastRawMediaTime=null,diagnostics={};
 function status(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
 function flush(){if(buffer.length&&worker){worker.postMessage({type:'samples',samples:buffer});buffer=[];}}
 function resetDecoder(){
- worker?.terminate();worker=new Worker('worker.js?v=3');
+ worker?.terminate();worker=new Worker('worker.js?v=4');
  worker.onerror=()=>status('解码程序载入失败。请刷新页面后重试。',true);
  worker.onmessage=({data})=>{
   if(data.type==='sync'){status('找到发送信号，正在接收文字…');$('message').textContent='';}
@@ -19,11 +19,11 @@ function resetDecoder(){
   }
   if(data.type==='error')status('解码出错：'+data.message,true);
  };
- const bytes=Number($('bytes').value);worker.postMessage({type:'reset',config:{symbol:$('symbol').value==='auto'?'auto':Number($('symbol').value),bytes}});
+ const bytes=Number($('bytes').value);worker.postMessage({type:'reset',config:{profile:$('profile')?.value||'legacy',symbol:$('symbol').value==='auto'?'auto':Number($('symbol').value),bytes}});
  samples=[];packets=[];buffer=[];lastMedia=-1;lastFlush=0;$('message').textContent='—';$('progress').max=bytes*8;$('progress').value=0;$('save').disabled=true;
  clockOrigin=null;lastCallbackAt=0;lastRawMediaTime=null;
  diagnostics={video_frame_callbacks:0,raf_fallback_samples:0,repeated_media_times:0,sampling_errors:[],clock:source==='camera'?'monotonic callback time':'video media time',scheduler:'waiting'};
- $('sampling').textContent=`v3 · 已采样 0 点 · 已接收 0 条 · ${source==='camera'?'等待实时画面':'等待视频'}`;
+ $('sampling').textContent=`v4 · 已采样 0 点 · 已接收 0 条 · ${source==='camera'?'等待实时画面':'等待视频'}`;
 }
 function sample(t){
  if(!Number.isFinite(t)||t<=lastMedia||!video.videoWidth)return;
@@ -36,8 +36,8 @@ function sample(t){
  if(t-lastFlush>=.4){flush();lastFlush=t;}
  if(samples.length%30===0&&samples.length>30){
   const tail=samples.slice(-120),fps=(tail.length-1)/(tail.at(-1)[0]-tail[0][0]);
-  const bad=fps<=22;
-  $('sampling').textContent=`v3 · ${samples.length} 点 · 已接收 ${packets.length} 条 · 采样约 ${fps.toFixed(1)} 次/秒${diagnostics.raf_fallback_samples?' · 兼容采样模式（不保证每点是独立新帧）':''}${bad?' · 采样偏低':''}`;
+  const bad=fps<=($('profile')?.value==='rate-coupled'?50:22);
+  $('sampling').textContent=`v4 · ${samples.length} 点 · 已接收 ${packets.length} 条 · 采样约 ${fps.toFixed(1)} 次/秒${diagnostics.raf_fallback_samples?' · 兼容采样模式（不保证每点是独立新帧）':''}${bad?' · 采样偏低':''}`;
   if(bad&&!packets.length)status('摄像头采样不足。请保持页面在前台并增加环境光。',true);
  }
  // Cap a long unattended capture, preserving data and stopping the camera.
@@ -90,7 +90,7 @@ async function stopCapture(text){
  if(healthTimer!==null){clearInterval(healthTimer);healthTimer=null;}
  stream?.getTracks().forEach(track=>track.stop());stream=null;video.pause();video.srcObject=null;
  if(wake){try{await wake.release();}catch{}wake=null;}
- $('start').disabled=false;$('stop').disabled=true;$('symbol').disabled=false;$('bytes').disabled=false;$('file').disabled=false;
+ $('start').disabled=false;$('stop').disabled=true;$('symbol').disabled=false;$('bytes').disabled=false;$('file').disabled=false;if($('profile'))$('profile').disabled=false;
  if(samples.length)$('save').disabled=false;
  if(typeof text==='string')status(text);
 }
@@ -108,7 +108,7 @@ async function begin(kind,file){
   }else{objectURL=URL.createObjectURL(file);video.src=objectURL;}
   await Promise.race([video.play(),new Promise((_,reject)=>setTimeout(()=>reject(Error('视频未能开始播放。请在 iPhone Safari 重试；回放文件可能需要转换为兼容的视频格式。')),12000))]);
   active=true;generation++;scheduleFrames(generation);
-  $('stop').disabled=false;$('symbol').disabled=true;$('bytes').disabled=true;$('file').disabled=true;
+  $('stop').disabled=false;$('symbol').disabled=true;$('bytes').disabled=true;$('file').disabled=true;if($('profile'))$('profile').disabled=true;
   $('mode').textContent=kind==='camera'?'手机实时接收':'本机视频回放';
   status(kind==='camera'?'摄像头已打开。对准图片中央，然后在电脑点击「全屏发送」。':'正在按原速回放并解码，请等待视频结束。');
   try{wake=await navigator.wakeLock?.request('screen');}catch{}
@@ -121,7 +121,23 @@ video.onloadedmetadata=()=>{if(video.videoWidth&&video.videoHeight)document.quer
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&active)stopCapture('页面离开前台，已停止摄像头。请重新开始后再发送。');});
 window.addEventListener('pagehide',()=>{stream?.getTracks().forEach(track=>track.stop());worker?.terminate();});
 $('save').onclick=()=>{
- const result={schema_version:3,app_version:APP_VERSION,source,camera_settings:cameraSettings,capture_diagnostics:diagnostics,exported_at:new Date().toISOString(),symbol_seconds:$('symbol').value==='auto'?'auto':Number($('symbol').value),payload_bytes:Number($('bytes').value),packets,samples,notes:'All samples processed on-device. Camera times use a monotonic callback clock. RAF fallback is approximate and may contain duplicated frames. Expected message is not supplied to decoder. BER requires comparison with transmitted bits.'};
- const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(result)],{type:'application/json'}));a.href=url;a.download=`receiver_${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ const result={schema_version:4,profile:$('profile')?.value||'legacy',app_version:APP_VERSION,source,camera_settings:cameraSettings,capture_diagnostics:diagnostics,exported_at:new Date().toISOString(),symbol_seconds:$('symbol').value==='auto'?'auto':Number($('symbol').value),payload_bytes:Number($('bytes').value),packets,samples,notes:'All samples processed on-device. Camera times use a monotonic callback clock. RAF fallback is approximate and may contain duplicated frames. Expected message is not supplied to decoder. BER requires comparison with transmitted bits.'};
+ const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(result)],{type:'application/json'}));a.href=url;a.download=`receiver_${$('profile')?.value==='rate-coupled'?'refinement_':''}${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 if(!window.isSecureContext)status('摄像头需要 HTTPS 链接。此页仍可选择本机视频做回放验证。',true);
+
+function configureProfile(){
+ const refinement=$('profile').value==='rate-coupled';
+ $('symbol').value='auto';
+ for(const option of $('symbol').options||[])option.disabled=refinement&&option.value!=='auto';
+ status(refinement?'补测模式：使用电脑 refine.html 页面，手机采样需超过 50 次/秒。':'原实验模式：使用电脑 batch.html 页面。');
+}
+if(window.location){
+ const profile=new URLSearchParams(window.location.search).get('profile');
+ if(profile==='rate-coupled'){
+  $('profile').value=profile;configureProfile();
+  status('补测模式：等待打开摄像头；使用电脑 refine.html 页面。');
+  document.querySelector('details').open=true;
+ }
+}
+$('profile').onchange=configureProfile;

@@ -1,0 +1,9 @@
+id,distance_cm,delta,symbol,message,flicker_observation,profile,repeat,f0_hz,f1_hz,flicker_observation_source,sender_complete,status,payload_ber,frame_ber,payload_goodput_bps,frame_correct_bit_rate_bps,receiver_average_fps,received_text
+V0001,20,0.5,0.25,V0001,clear,rate-coupled,1,8,12,this_session,True,decoded,0.0,0.015625,2.5,3.9375,57.99549549549549,V0001
+V0002,20,0.1,0.25,V0002,slight,rate-coupled,1,8,12,this_session,True,decoded,0.0,0.0,2.5,4.0,57.87037037037039,V0002
+V0003,20,0.5,0.125,V0003,clear,rate-coupled,1,16,24,this_session,True,decoded,0.0,0.0,5.0,8.0,59.86973947895795,V0003
+V0004,20,0.1,0.16666666666666666,V0004,slight,rate-coupled,1,12,18,this_session,True,packet_not_delivered,1.0,1.0,0.0,0.0,58.11660876912968,
+V0005,20,0.1,0.125,V0005,slight,rate-coupled,1,16,24,this_session,True,decoded,0.0,0.0,5.0,8.0,59.36873747494983,V0005
+V0006,20,0.5,0.5,V0006,clear,rate-coupled,1,4,6,this_session,True,decoded,0.0,0.0,1.25,2.0,57.679682370963185,V0006
+V0007,20,0.1,0.5,V0007,slight,rate-coupled,1,4,6,this_session,True,decoded,0.0,0.0,1.25,2.0,58.17954332186425,V0007
+V0008,20,0.5,0.16666666666666666,V0008,clear,rate-coupled,1,12,18,this_session,True,decoded,0.0,0.015625,3.75,5.90625,58.86771195192934,V0008

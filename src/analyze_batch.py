@@ -13,7 +13,13 @@ def main():
     args=p.parse_args()
     rx=json.loads(Path(args.receiver).read_text());tx=json.loads(Path(args.sender).read_text())
     trials=tx['trials'];packets=rx.get('packets',[]);samples=np.asarray(rx.get('samples',[]))
-    shared=json.loads(Path(args.observations).read_text()) if Path(args.observations).exists() else None
+    refinement=tx.get('profile')=='rate-coupled'
+    if refinement and rx.get('profile')!='rate-coupled':
+        raise ValueError('Refinement sender requires the refinement receiver profile.')
+    if refinement and rx.get('capture_diagnostics',{}).get('raf_fallback_samples',0):
+        raise ValueError('Refinement needs independent video frames; RAF fallback sampling is not valid for the high carriers.')
+    # New carrier pairs change visibility: legacy observations must never be reused.
+    shared=json.loads(Path(args.observations).read_text()) if not refinement and Path(args.observations).exists() else None
     anchors=[]
     for packet in packets:
         matches=[c for c in trials if c['message']==packet['text'] and c['symbol']==packet['symbol_seconds']]
@@ -25,6 +31,8 @@ def main():
     used=set()
     for trial in trials:
         row={k:trial[k] for k in ('id','distance_cm','delta','symbol','message','flicker_observation')}
+        if refinement:
+            row.update({k:trial[k] for k in ('profile','repeat','f0_hz','f1_hz')})
         row['flicker_observation_source']='this_session' if row['flicker_observation'] else None
         if not row['flicker_observation'] and shared:
             match=[o for o in shared['observations'] if o['delta']==trial['delta'] and o['symbol_seconds']==trial['symbol']]
@@ -34,14 +42,23 @@ def main():
         row.update(sender_complete=trial.get('complete',False),status='unmeasured',payload_ber=None,frame_ber=None,payload_goodput_bps=None,frame_correct_bit_rate_bps=None)
         if tx.get('aborted') or not trial.get('complete'):
             row['status']='sender_incomplete';records.append(row);continue
+        if refinement and (trial.get('active_average_fps',0)<=2*trial['f1_hz'] or
+                           trial.get('active_max_frame_gap_seconds') is None or
+                           trial['active_max_frame_gap_seconds']>min(.1,.4*trial['symbol'])):
+            row['status']='sender_timing_unreliable';records.append(row);continue
         if offset is None or len(samples)<2:
             row['status']='no_alignment_anchor';records.append(row);continue
         start=trial['modulation_start']+offset
         duration=(len(tx['protocol']['preamble'])+len(trial['message'])*8)*trial['symbol']
         covered=samples[0,0]<=start+.2 and samples[-1,0]>=start+duration-.2
         section=samples[(samples[:,0]>=start)&(samples[:,0]<=start+duration)]
-        if not covered or len(section)<5 or (np.diff(section[:,0])>.2).any():
+        maxgap=min(.1,.4*trial['symbol']) if refinement else .2
+        if not covered or len(section)<5 or (np.diff(section[:,0])>maxgap).any():
             row['status']='capture_incomplete';records.append(row);continue
+        if refinement:
+            row['receiver_average_fps']=(len(section)-1)/(section[-1,0]-section[0,0])
+            if row['receiver_average_fps']<=2*trial['f1_hz']:
+                row['status']='receiver_undersampled';records.append(row);continue
         candidates=[(i,packet) for i,packet in enumerate(packets) if i not in used and packet['symbol_seconds']==trial['symbol'] and abs(packet['preamble_start_seconds']-start)<max(.5,trial['symbol'])]
         received=min(candidates,key=lambda pair:abs(pair[1]['preamble_start_seconds']-start)) if candidates else None
         truth=np.unpackbits(np.frombuffer(trial['message'].encode('ascii'),dtype=np.uint8))
@@ -60,6 +77,7 @@ def main():
         records.append(row)
     sender_path=Path(args.sender)
     session=sender_path.parent.name if sender_path.stem=='transmitter' else sender_path.stem
+    if refinement:session=f"{tx['distance_cm']}cm_r{tx['repeat']}"
     out=Path(args.out)/session;out.mkdir(parents=True,exist_ok=True)
     result={'receiver':args.receiver,'sender':args.sender,'clock_offset_seconds':offset,'alignment_anchors':len(anchors),
             'records':records,'note':'Null metrics are unmeasured, never substitute zero BER. No delivered packet with full capture coverage counts as all bits erased. Preamble-inclusive and payload-only metrics are separate.'}
