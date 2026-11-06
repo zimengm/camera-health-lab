@@ -1,24 +1,24 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#10231e"><title>Vital Visions · 手机接收</title>
+<meta name="theme-color" content="#10231e"><title>Vital Visions · Phone receiver</title>
 <style>
 :root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0d1714;color:#edf4ee}*{box-sizing:border-box}body{margin:0}main{max-width:640px;margin:auto;padding:28px 20px 50px}header{display:flex;justify-content:space-between;align-items:center}.brand{font-size:12px;letter-spacing:2px;color:#9fb7a7}.pill{font-size:12px;border:1px solid #456356;padding:6px 10px;border-radius:100px;color:#bce3c7}h1{font-size:30px;font-weight:650;margin:24px 0 10px}p{color:#adc1b3;font-size:15px;line-height:1.7}.view{position:relative;border:1px solid #3a5547;border-radius:18px;overflow:hidden;background:#17271f;aspect-ratio:4/3;margin:22px 0}video{width:100%;height:100%;object-fit:contain;display:block}.reticle{position:absolute;left:35%;top:35%;width:30%;height:30%;border:2px solid #d4f3aa;border-radius:5px;pointer-events:none}.hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:12px;color:#fff;text-shadow:0 1px 4px #000}.result{background:#182c22;border:1px solid #3c5b48;border-radius:16px;padding:20px}.eyebrow{font-size:12px;color:#b0c6b7}.message{font-size:36px;min-height:48px;letter-spacing:4px;overflow-wrap:anywhere;margin:8px 0;color:#dcffac}.state{font-size:14px;line-height:1.6;color:#c3d6c9;min-height:45px}progress{accent-color:#c4ee9c;width:100%;height:6px;margin-top:12px}button,select,input{font:inherit;border-radius:10px;padding:13px;border:1px solid #456356}button{background:#dcffac;color:#142313;font-weight:600;cursor:pointer}button.secondary{background:transparent;color:#c6d9cc}button:disabled{opacity:.4;cursor:default}.buttons{display:flex;gap:10px;margin:20px 0}.buttons button{flex:1}details{border-top:1px solid #30483a;padding-top:18px;margin-top:22px}summary{color:#c0d3c6;cursor:pointer}.settings{display:flex;gap:18px;flex-wrap:wrap;margin:18px 0}label{display:grid;gap:8px;font-size:13px;color:#a7beb0}select,input{background:#18271f;color:white;width:150px}.small{font-size:12px;color:#87a190}a{color:#d1efb2}.export{margin-top:16px;font-size:14px}#file{max-width:100%;font-size:13px}.error{color:#ffbd9f}canvas{display:none}
 </style>
 <main>
-<header><span class="brand">VITAL VISIONS / RECEIVER</span><span class="pill" id="mode">手机本地解码</span></header>
-<h1>让手机读懂屏幕。</h1>
-<p>① 打开摄像头　② 对准电脑图片中央<br>③ 电脑点击「全屏发送」，手机会逐字显示收到的内容。</p>
-<div class="view"><video id="video" muted playsinline></video><div class="reticle"></div><div class="hint" id="viewHint">让绿色框内全部是电脑图片</div></div>
-<div class="result" aria-live="polite"><div class="eyebrow">收到的文字</div><div class="message" id="message">—</div><div class="state" id="status">尚未打开摄像头。先保持默认设置。</div><progress id="progress" value="0" max="40"></progress></div>
-<div class="buttons"><button id="start">打开后置摄像头</button><button class="secondary" id="stop" disabled>停止</button></div>
-<p class="small" id="sampling">v4 · 画面只在此设备处理，不上传，也不录音。</p>
-<button class="secondary export" id="save" disabled>保存本次接收数据</button>
-<details><summary>实验设置与视频回放验证</summary>
-<div class="settings"><label>实验模式<select id="profile"><option value="legacy">原实验（4/10 Hz）</option><option value="rate-coupled">可见性补测</option></select></label><label>接收速度<select id="symbol"><option value="auto">自动（批量实验）</option><option value="0.5">0.5 秒（单次）</option><option value="0.4">0.4 秒</option><option value="0.25">0.25 秒</option></select></label><label>消息字符数<input id="bytes" type="number" min="1" max="16" value="5"></label></div>
-<p class="small">补测模式请保持速度为「自动」；对应电脑 refine.html，采样需超过 50 次/秒。只需要知道消息长度，不需要预先输入消息内容。默认可接收 HELLO、WORLD 等 5 个字符的消息。没有校验码，出现乱码或低置信度时需重试；误码率须与实际发送内容比较后计算。</p>
-<label>在本机回放视频验证（不会上传）<input id="file" type="file" accept="video/*"></label>
-<p class="small">回放用于验证算法；手机实时接收请使用上方摄像头按钮。</p>
+<header><span class="brand">VITAL VISIONS / RECEIVER</span><span class="pill" id="mode">On-device decoding</span></header>
+<h1>Read the screen with your phone.</h1>
+<p>1. Open the camera. 2. Aim at the center of the computer image.<br>3. Start the computer transmitter. Received characters appear on the phone.</p>
+<div class="view"><video id="video" muted playsinline></video><div class="reticle"></div><div class="hint" id="viewHint">Fill the green box with the computer image.</div></div>
+<div class="result" aria-live="polite"><div class="eyebrow">Received text</div><div class="message" id="message">—</div><div class="state" id="status">Camera not started. Keep the default settings initially.</div><progress id="progress" value="0" max="40"></progress></div>
+<div class="buttons"><button id="start">Open rear camera</button><button class="secondary" id="stop" disabled>Stop</button></div>
+<p class="small" id="sampling">v4 · Frames are processed on this device; no images are uploaded and no audio is recorded.</p>
+<button class="secondary export" id="save" disabled>Save receiver data</button>
+<details><summary>Experiment settings and video validation</summary>
+<div class="settings"><label>Experiment profile<select id="profile"><option value="legacy">Original experiment (4/10 Hz)</option><option value="rate-coupled">Visibility supplement</option></select></label><label>Receiver rate<select id="symbol"><option value="auto">Automatic (batch)</option><option value="0.5">0.5 s (single)</option><option value="0.4">0.4 s</option><option value="0.25">0.25 s</option></select></label><label>Message length<input id="bytes" type="number" min="1" max="16" value="5"></label></div>
+<p class="small">For the supplement, use Automatic rate and the computer refine.html page; camera sampling must exceed 50 samples/s. Only message length is required, not its content. The default accepts five-character messages such as HELLO and WORLD. There is no checksum; retain corrupted or low-confidence results and compare received bits with transmitted bits to calculate BER.</p>
+<label>Validate a local video (not uploaded)<input id="file" type="file" accept="video/*"></label>
+<p class="small">Video playback validates the algorithm. For live reception use the camera button above.</p>
 </details><canvas id="canvas" width="64" height="64"></canvas>
 </main><script src="app.js?v=4"></script>
 </html>

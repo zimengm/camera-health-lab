@@ -1,10 +1,10 @@
-# 四个距离的正式通信测试
+# Formal four-distance communication experiments
 
-24 项条件全部采集、分析完成。汇总表：`all_results.csv`；总体统计：`summary.json`。
+All 24 physical conditions were acquired and analyzed. See `all_results.csv` and `summary.json`.
 
-- `payload_ber.png`：只统计 40 个消息比特的误码率。
-- `frame_ber.png`：包含 24 位同步码的全包误码率。
-- `correct_bit_rate.png`：每秒正确接收的全包比特数。
-- `payload_goodput.png`：考虑同步开销后的有效消息吞吐量。
+- `payload_ber.png`: error rate for the 40 message bits.
+- `frame_ber.png`: error rate including the 24-bit synchronization preamble.
+- `correct_bit_rate.png`: correctly received frame bits per active-packet second.
+- `payload_goodput.png`: payload goodput including synchronization overhead.
 
-每个条件只发送一个消息，无统计误差条。不同距离曲线完全重合时会覆盖显示，数值以 CSV 为准。肉眼观察是固定观察位置下共享的一组记录，不是四次独立观察。
+Each condition contains one message, so no statistical error bars are claimed. Overlapping curves may coincide; consult the CSV for exact values. Shared visibility ratings assume fixed observer position, screen brightness and room lighting; they are not four independent observations.

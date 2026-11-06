@@ -1,23 +1,23 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Assignment 4 · BFSK 发送端</title>
+<title>Assignment 4 · BFSK transmitter</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#10141c;color:#ecf1f9;font:16px system-ui}main{max-width:1000px;margin:30px auto;padding:20px}h1{font-size:25px}p{line-height:1.65;color:#c1cddd}.controls{display:flex;flex-wrap:wrap;gap:18px;margin:24px 0}label{display:grid;gap:8px}input,select,button{font:inherit;padding:10px;border-radius:7px;border:1px solid #53657c}input,select{background:#182334;color:white;width:140px}button{background:#ade6cf;color:#102119;cursor:pointer}button:disabled{opacity:.4;cursor:default}#stage{background:#000;width:100%;aspect-ratio:16/9;overflow:hidden;border:1px solid #44536c}#picture{width:100%;height:100%;display:block}#stage:fullscreen{width:100vw;height:100vh;border:0;aspect-ratio:auto}#status{min-height:50px;font-weight:600}a{color:#ade6cf}.note{font-size:14px}
 </style>
 <main>
-<h1>屏幕 → 摄像头 BFSK 发送端</h1>
-<p>实时接收：先在手机 Safari 打开<a href="https://vital-visions-phone-receiver.jadechime2.chatgpt.site" target="_blank" rel="noopener">手机接收页面</a>并允许摄像头，再点击下方「全屏发送」。让手机镜头对准图片中央，发送过程中保持此电脑页面在前台。</p>
+<h1>Screen-to-camera BFSK transmitter</h1>
+<p>For live reception, open the <a href="https://vital-visions-phone-receiver.jadechime2.chatgpt.site" target="_blank" rel="noopener">phone receiver</a> in iPhone Safari and allow camera access. Then click Full-screen transmission below. Aim at the image center and keep this computer page in the foreground.</p>
 <div class="controls">
-<label>透明度差 Δα<select id="delta"><option value="0.5">0.5（先测试）</option><option value="0.1">0.1</option></select></label>
-<label>每比特时间<select id="symbol"><option value="0.5">0.5 秒 / 2 bps</option><option value="0.4">0.4 秒 / 2.5 bps</option><option value="0.25">0.25 秒 / 4 bps</option></select></label>
-<label>距离（记录用）<select id="distance"><option>20</option><option>40</option><option>80</option><option>120</option></select></label>
-<label>消息（1–16 ASCII 字符）<input id="message" maxlength="16" value="HELLO"></label>
+<label>Alpha difference Δα<select id="delta"><option value="0.5">0.5 (start here)</option><option value="0.1">0.1</option></select></label>
+<label>Symbol duration<select id="symbol"><option value="0.5">0.5 s / 2 bps</option><option value="0.4">0.4 s / 2.5 bps</option><option value="0.25">0.25 s / 4 bps</option></select></label>
+<label>Distance (cm, logged)<select id="distance"><option>20</option><option>40</option><option>80</option><option>120</option></select></label>
+<label>Message (1-16 ASCII characters)<input id="message" maxlength="16" value="HELLO"></label>
 </div>
-<p id="summary"></p><button id="start">全屏发送</button> <button id="save" disabled>下载本次发送日志</button>
-<p id="status">正在载入协议…</p>
+<p id="summary"></p><button id="start">Full-screen transmission</button> <button id="save" disabled>Download transmitter log</button>
+<p id="status">Loading protocol...</p>
 <div id="stage">
-<svg id="picture" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="静态山水图片">
+<svg id="picture" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Static landscape image">
 <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d3e9f5"/><stop offset="1" stop-color="#f5e9cb"/></linearGradient><linearGradient id="water" x2="0" y2="1"><stop stop-color="#8abec6"/><stop offset="1" stop-color="#366c84"/></linearGradient></defs>
 <path fill="url(#sky)" d="M0 0H1600V900H0z"/><circle cx="1250" cy="190" r="85" fill="#fff4cf"/>
 <path fill="#a2bac7" d="M0 600L230 380 450 560 690 330 1000 600 1270 390 1600 610V900H0z"/>
@@ -26,26 +26,26 @@
 <path fill="none" stroke="#d2e6dc" stroke-width="5" opacity=".5" d="M550 780H1050M300 825H850M1000 860H1450"/>
 </svg>
 </div>
-<p class="note">0 → 4 Hz；1 → 10 Hz。图片 opacity 在 1−Δα 与 1 之间做正弦变化，背景为黑色。前导码用于同步，消息按 ASCII、每字节高位优先发送。此页面是发送端；手机录像后的离线解码用于先验证链路。</p>
+<p class="note">0 uses 4 Hz; 1 uses 10 Hz. Image opacity varies sinusoidally between 1-delta and 1 over black. A preamble provides synchronization; ASCII bytes are sent most-significant bit first. This page transmits. Recorded-video decoding provides an additional offline link check.</p>
 </main>
 <script>
 let protocol, lastLog=null, running=false;
 const $=id=>document.getElementById(id);
 function bitsOf(s){return [...s].flatMap(c=>c.charCodeAt(0).toString(2).padStart(8,'0').split('').map(Number));}
-function update(){if(!protocol)return; const n=protocol.preamble.length+bitsOf($('message').value).length; $('summary').textContent=`完整画面约 ${(protocol.lead_seconds+n*Number($('symbol').value)+protocol.tail_seconds).toFixed(1)} 秒。录像请覆盖发送前后各 2–3 秒。`;}
-fetch('protocol.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(p=>{protocol=p;$('status').textContent='就绪：先拍 20 cm、Δα=0.5、0.5 秒/bit 的测试。';update()}).catch(e=>{$('status').textContent='请通过本地服务器打开此页：python serve.py。'+e.message;$('start').disabled=true;});
+function update(){if(!protocol)return; const n=protocol.preamble.length+bitsOf($('message').value).length; $('summary').textContent=`Total sequence: approximately ${(protocol.lead_seconds+n*Number($('symbol').value)+protocol.tail_seconds).toFixed(1)} seconds. For video validation, include 2-3 seconds before and after transmission.`;}
+fetch('protocol.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(p=>{protocol=p;$('status').textContent='Ready. Start with 20 cm, delta alpha 0.5 and 0.5 seconds/bit.';update()}).catch(e=>{$('status').textContent='Open this page through the local server: python src/serve.py. '+e.message;$('start').disabled=true;});
 for(const id of ['symbol','message'])$(id).addEventListener('input',update);
 $('start').onclick=async()=>{
  if(!protocol||running)return;
  const message=$('message').value;
- if(!/^[\x20-\x7e]{1,16}$/.test(message)){alert('请输入 1–16 个可打印 ASCII 字符。');return;}
+ if(!/^[\x20-\x7e]{1,16}$/.test(message)){alert('Enter 1-16 printable ASCII characters.');return;}
  const config={message,delta:Number($('delta').value),symbol:Number($('symbol').value),distance_cm:Number($('distance').value)};
  const bits=[...protocol.preamble].map(Number).concat(bitsOf(message));
  const end=protocol.lead_seconds+bits.length*config.symbol;
  let previous, begin;
  running=true;$('start').disabled=true;$('save').disabled=true;
  lastLog={protocol,config,started_at:new Date().toISOString(),frames:[],aborted:false};
- try{await $('stage').requestFullscreen();}catch(e){$('status').textContent='未进入全屏，继续发送；请只拍摄图片区域。';}
+ try{await $('stage').requestFullscreen();}catch(e){$('status').textContent='Full-screen mode unavailable; transmission continues. Aim at the image area only.';}
  let wake;try{wake=await navigator.wakeLock?.request('screen');}catch(e){}
  const finish=async(aborted)=>{
   running=false;lastLog.aborted=aborted;$('picture').style.opacity='1';
@@ -58,7 +58,7 @@ $('start').onclick=async()=>{
   const unstable=!aborted&&(lastLog.active_average_fps<40||lastLog.active_max_frame_gap_seconds>.08);
   lastLog.elapsed_seconds=lastLog.frames.length?lastLog.frames.at(-1).t:0;
   $('start').disabled=false;$('save').disabled=false;
-  $('status').textContent=aborted?'发送中断，请重新录制。':`发送结束，可以停止录像。请下载日志。调制期间平均 ${lastLog.active_average_fps.toFixed(1)} fps，最大更新间隔 ${(1000*(lastLog.active_max_frame_gap_seconds||0)).toFixed(1)} ms。${unstable?' 显示更新不稳定：请使用桌面 Chrome，关闭其他繁忙程序后重试。':''}`;
+  $('status').textContent=aborted?'Transmission interrupted. Repeat the capture.':`Transmission finished. Stop the recording and download the log. Mean active refresh rate: ${lastLog.active_average_fps.toFixed(1)} fps; maximum update gap: ${(1000*(lastLog.active_max_frame_gap_seconds||0)).toFixed(1)} ms。${unstable?' Display refresh was unstable. Use desktop Chrome and reduce competing workloads before retrying.':''}`;
   if(document.fullscreenElement)try{await document.exitFullscreen();}catch(e){}
   if(wake)await wake.release();
  };
@@ -79,7 +79,7 @@ $('start').onclick=async()=>{
   if(t>=end+protocol.tail_seconds){finish(false);return;}
   previous=now;requestAnimationFrame(tick);
  }
- $('status').textContent='发送中，请保持页面在前台。';requestAnimationFrame(tick);
+ $('status').textContent='Transmitting. Keep this page in the foreground.';requestAnimationFrame(tick);
 };
 $('save').onclick=()=>{if(!lastLog)return;const c=lastLog.config;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(lastLog,null,2)],{type:'application/json'}));a.download=`tx_d${c.distance_cm}_a${c.delta}_T${c.symbol}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
 </script>

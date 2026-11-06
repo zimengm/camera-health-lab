@@ -14,18 +14,18 @@ function makePlan(distance){
 }
 function render(){
  if(!protocol)return;plan=makePlan(Number($('distance').value));
- $('duration').textContent=`每个距离自动发送 6 次，约 ${Math.ceil(plan.at(-1).end)} 秒。完成后保存电脑日志，再换下一个距离。`;
+ $('duration').textContent=`Six transmissions per distance, approximately ${Math.ceil(plan.at(-1).end)} seconds. Save the transmitter log before changing distance.`;
  $('observations').replaceChildren();
  for(const c of plan){
   const row=document.createElement('label');row.className='observation';
   const text=document.createElement('span');text.textContent=`${c.id} · Δα ${c.delta} · ${1/c.symbol} bit/s`;
   const select=document.createElement('select');select.dataset.id=c.id;
-  for(const [v,t]of [['','请选择'],['none','看不出'],['slight','轻微'],['clear','明显'],['unobserved','没留意']]){const o=document.createElement('option');o.value=v;o.textContent=t;select.append(o);}
+  for(const [v,t]of [['','Select an observation'],['none','Not visible'],['slight','Slightly visible'],['clear','Clearly visible'],['unobserved','Not observed']]){const o=document.createElement('option');o.value=v;o.textContent=t;select.append(o);}
   select.onchange=()=>{if(log){const trial=log.trials.find(t=>t.id===c.id);if(trial)trial.flicker_observation=select.value||null;}};
   row.append(text,select);$('observations').append(row);
  }
 }
-function observe(value){if(!active||current<0)return;const c=plan[current];log.trials[current].flicker_observation=value;const select=$('observations').querySelector(`[data-id="${c.id}"]`);if(select)select.value=value;$('notice').textContent=`${c.id} 已记录：${{none:'看不出',slight:'轻微',clear:'明显'}[value]}`;}
+function observe(value){if(!active||current<0)return;const c=plan[current];log.trials[current].flicker_observation=value;const select=$('observations').querySelector(`[data-id="${c.id}"]`);if(select)select.value=value;$('notice').textContent=`${c.id} recorded: ${{none:'Not visible',slight:'Slightly visible',clear:'Clearly visible'}[value]}`;}
 document.addEventListener('keydown',event=>{if(active&&['0','1','2'].includes(event.key))observe({0:'none',1:'slight',2:'clear'}[event.key]);});
 async function finish(aborted){
  active=false;cancelAnimationFrame(raf);$('picture').style.opacity='1';$('overlay').hidden=true;
@@ -37,7 +37,7 @@ async function finish(aborted){
   trial.active_max_frame_gap_seconds=gaps.length?Math.max(...gaps):null;
  }
  $('start').disabled=false;$('distance').disabled=false;$('save').disabled=false;
- $('status').textContent=aborted?'已中断。请保存日志，不要当作完成。':'本距离的 6 次发送结束。手机点停止并保存数据，电脑补全闪烁观察并保存日志。';
+ $('status').textContent=aborted?'Interrupted. Save the log; this run is incomplete.':'All six transmissions finished. Stop and save the phone capture, complete the observations, and save the transmitter log.';
  if(document.fullscreenElement)try{await document.exitFullscreen();}catch{}
 }
 $('start').onclick=async()=>{
@@ -56,13 +56,13 @@ $('start').onclick=async()=>{
    alpha=1-c.delta/2+c.delta/2*Math.cos(2*Math.PI*(c.bits[bit_index]?10:4)*(local-bit_index*c.symbol));
   }
   $('picture').style.opacity=String(alpha);trial.frames.push({t,alpha,bit_index});
-  const phase=t<c.modulation_start?'准备':t<c.modulation_end?'发送中':'间隔';
+  const phase=t<c.modulation_start?'Ready':t<c.modulation_end?'Transmitting':'Gap';
   $('overlay').hidden=false;$('label').textContent=`${i+1}/6 · ${phase} · ${c.id} · Δα ${c.delta} · ${1/c.symbol} bit/s`;
-  $('countdown').textContent=`剩余 ${Math.ceil(plan.at(-1).end-t)} 秒 · 按 0 看不出 / 1 轻微 / 2 明显`;
+  $('countdown').textContent=`Remaining ${Math.ceil(plan.at(-1).end-t)} seconds. Press 0: not visible / 1: slightly visible / 2: clearly visible`;
   if(t>=plan.at(-1).end){finish(false);return;}raf=requestAnimationFrame(tick);
  }
- $('status').textContent='批量发送中，手机保持固定；观察闪烁可按电脑数字键 0/1/2。';raf=requestAnimationFrame(tick);
+ $('status').textContent='Batch transmission in progress. Keep the phone fixed; press 0/1/2 to record visibility.';raf=requestAnimationFrame(tick);
 };
 $('save').onclick=()=>{if(!log)return;const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(log)],{type:'application/json'}));a.href=url;a.download=`batch_d${log.distance_cm}_${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-fetch('protocol.json').then(r=>r.json()).then(p=>{protocol=p;render();$('start').disabled=false;$('status').textContent='就绪：确认手机采样点数在增加，再开始。';}).catch(e=>{$('status').textContent='协议载入失败：'+e.message;});
+fetch('protocol.json').then(r=>r.json()).then(p=>{protocol=p;render();$('start').disabled=false;$('status').textContent='Ready. Confirm that the phone sample count is increasing before starting.';}).catch(e=>{$('status').textContent='Protocol loading failed: '+e.message;});
 $('distance').onchange=render;
